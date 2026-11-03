@@ -1,10 +1,11 @@
-#define UP_THRESHOLD 525
+#define UP_THRESHOLD 524
 #define DOWN_THRESHOLD 500
 #define JOYSTICK_ZERO 512
+#define DEADBAND 12
 
-int SPEED_AXIS = A0;
-int TURN_AXIS = A1;
-int LIFT_AXIS = A2;
+#define SPEED_AXIS A2
+#define TURN_AXIS A0
+#define LIFT_AXIS A1
 
 int speed = 0;
 int turn = 0;
@@ -40,24 +41,48 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  speed = analogRead(SPEED_AXIS);
-  turn = analogRead(TURN_AXIS);
-  lift = analogRead(LIFT_AXIS);
+  speed = -(analogRead(SPEED_AXIS) - JOYSTICK_ZERO);
+  turn = analogRead(TURN_AXIS) - JOYSTICK_ZERO;
+  lift = -(analogRead(LIFT_AXIS) - JOYSTICK_ZERO);
+
+  if (abs(speed) <= DEADBAND) {
+    speed = 0;
+  }
+  if (abs(turn) <= DEADBAND) {
+    turn = 0;
+  } 
+  if (abs(lift) <= DEADBAND) {
+    lift = 0;
+  }
   
   Serial.print("Speed: ");
   Serial.print(speed);
   Serial.print(", Turn: ");
   Serial.print(turn);
   Serial.print(", Lift: ");
-  Serial.print(lift);
+  Serial.println(lift);
 
-  power[0] = speed + turn - lift; // Top left, go clockwise
-  power[1] = speed - turn - lift; 
-  power[2] = speed + turn + lift;
-  power[3] = speed - turn + lift;
+  if ((abs(speed) + abs(turn) + abs(lift)) > JOYSTICK_ZERO) {
+      power[0] = (speed + turn - lift)/(abs(speed) + abs(turn) + abs(lift))*255; // Top left, go clockwise
+      power[1] = (speed - turn - lift)/(abs(speed) + abs(turn) + abs(lift))*255; 
+      power[2] = (speed - turn + lift)/(abs(speed) + abs(turn) + abs(lift))*255;
+      power[3] = (speed + turn + lift)/(abs(speed) + abs(turn) + abs(lift))*255;
+  } else if ((abs(speed) + abs(turn) + abs(lift)) != 0) {
+    power[0] = speed + turn - lift;
+    power[1] = speed - turn - lift; 
+    power[2] = speed - turn + lift;
+    power[3] = speed + turn + lift;
+  } else {
+    for (int i = 0; i < 4; i++) {
+      power[i] = 0;
+    }
+  }
+
+
 
   for (int i = 0; i < 4; i++) {
-    scaled_power[i] = map(abs(power[i] - JOYSTICK_ZERO), 0, 512, 0, 255); // Scales magnitude of the joystick reading from max of 512 to max of 255
+    // scaled_power[i] = map(abs(abs(power[i])), 0, 512, 0, 255); // Scales magnitude of the joystick reading from max of 512 to max of 255
+    scaled_power[i] = map(abs(power[i]), 0, 512, 0, 255);
     analogWrite(PWM[i], scaled_power[i]);
     Serial.print(NAMES[i]);
     Serial.print("'s raw power: ");
@@ -65,12 +90,12 @@ void loop() {
     Serial.print(", scaled power: ");
     Serial.print(scaled_power[i]);
 
-    if (power[i] > UP_THRESHOLD) {
+    if (power[i] > DEADBAND) {
       digitalWrite(FORWARD[i], HIGH);
       digitalWrite(BACKWARD[i], LOW);
 
       Serial.println(", forward");
-    } else if (power[i] < DOWN_THRESHOLD) {
+    } else if (power[i] < -DEADBAND) {
       digitalWrite(FORWARD[i], LOW);
       digitalWrite(BACKWARD[i], HIGH);
 
