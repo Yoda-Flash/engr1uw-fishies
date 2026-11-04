@@ -62,21 +62,22 @@ void loop() {
   Serial.print(", Lift: ");
   Serial.println(lift);
 
-  if ((abs(speed) + abs(turn) + abs(lift)) > JOYSTICK_ZERO) {
-      power[0] = (speed + turn - lift)/(abs(speed) + abs(turn) + abs(lift))*255; // Top left, go clockwise
-      power[1] = (speed - turn - lift)/(abs(speed) + abs(turn) + abs(lift))*255; 
-      power[2] = (speed - turn + lift)/(abs(speed) + abs(turn) + abs(lift))*255;
-      power[3] = (speed + turn + lift)/(abs(speed) + abs(turn) + abs(lift))*255;
-  } else if ((abs(speed) + abs(turn) + abs(lift)) != 0) {
-    power[0] = speed + turn - lift;
-    power[1] = speed - turn - lift; 
-    power[2] = speed - turn + lift;
-    power[3] = speed + turn + lift;
-  } else {
-    for (int i = 0; i < 4; i++) {
-      power[i] = 0;
-    }
-  }
+  // if ((abs(speed) + abs(turn) + abs(lift)) > JOYSTICK_ZERO) {
+
+  //     power[0] = (speed + turn - lift)/(abs(speed) + abs(turn) + abs(lift))*255; // Top left, go clockwise
+  //     power[1] = (speed - turn - lift)/(abs(speed) + abs(turn) + abs(lift))*255; 
+  //     power[2] = (speed - turn + lift)/(abs(speed) + abs(turn) + abs(lift))*255;
+  //     power[3] = (speed + turn + lift)/(abs(speed) + abs(turn) + abs(lift))*255;
+  // } else if ((abs(speed) + abs(turn) + abs(lift)) != 0) {
+    power[0] = constrain(speed + turn - lift, -512, 512);
+    power[1] = constrain(speed - turn - lift, -512, 512); 
+    power[2] = constrain(speed - turn + lift, -512, 512);
+    power[3] = constrain(speed + turn + lift, -512, 512);
+  // } else {
+  //   for (int i = 0; i < 4; i++) {
+  //     power[i] = 0;
+  //   }
+  // }
 
 
 
