@@ -2,6 +2,7 @@
 #define DOWN_THRESHOLD 500
 #define JOYSTICK_ZERO 512
 #define DEADBAND 12
+#define SCALER 0.5
 
 #define SPEED_AXIS A2
 #define TURN_AXIS A0
@@ -13,9 +14,9 @@ int lift = 0;
 
 // Top left, top right, back right, back left
 String NAMES[4];
-int PWM[] = {1, 4, 7, 10};
-int FORWARD[] = {2, 5, 8, 11};
-int BACKWARD[] = {3, 6, 9, 12};
+int PWM[] = {3, 4, 1, 2};
+int FORWARD[] = {42, 44, 38, 40};
+int BACKWARD[] = {43, 45, 39, 41};
 int power[4];
 int scaled_power[4];
 
@@ -73,6 +74,7 @@ void loop() {
     power[1] = constrain(speed - turn - lift, -512, 512); 
     power[2] = constrain(speed - turn + lift, -512, 512);
     power[3] = constrain(speed + turn + lift, -512, 512);
+
   // } else {
   //   for (int i = 0; i < 4; i++) {
   //     power[i] = 0;
@@ -83,7 +85,7 @@ void loop() {
 
   for (int i = 0; i < 4; i++) {
     // scaled_power[i] = map(abs(abs(power[i])), 0, 512, 0, 255); // Scales magnitude of the joystick reading from max of 512 to max of 255
-    scaled_power[i] = map(abs(power[i]), 0, 512, 0, 255);
+    scaled_power[i] = SCALER*map(abs(power[i]), 0, 512, 0, 255);
     analogWrite(PWM[i], scaled_power[i]);
     Serial.print(NAMES[i]);
     Serial.print("'s raw power: ");
