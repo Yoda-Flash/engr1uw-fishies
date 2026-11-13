@@ -1,8 +1,8 @@
-#define UP_THRESHOLD 524
-#define DOWN_THRESHOLD 500
+#define UP_THRESHOLD 545
+#define DOWN_THRESHOLD 480
 #define JOYSTICK_ZERO 512
 #define DEADBAND 12
-#define SCALER 0.5
+#define SCALER 0.25
 
 #define SPEED_AXIS A2
 #define TURN_AXIS A0
@@ -14,9 +14,9 @@ int lift = 0;
 
 // Top left, top right, back right, back left
 String NAMES[4];
-int PWM[] = {3, 4, 1, 2};
-int FORWARD[] = {42, 44, 38, 40};
-int BACKWARD[] = {43, 45, 39, 41};
+int PWM[] = {10, 5, 6, 3};
+int FORWARD[] = {42, 44, 33, 40};
+int BACKWARD[] = {43, 45, 49, 41};
 int power[4];
 int scaled_power[4];
 
@@ -32,12 +32,12 @@ void setup() {
   pinMode(LIFT_AXIS, INPUT);
 
   for (int i = 0; i < 4; i++) {
-    pinMode(PWM[i], OUTPUT);
+    // pinMode(PWM[i], OUTPUT);
     pinMode(FORWARD[i], OUTPUT);
     pinMode(BACKWARD[i], OUTPUT);
   }
 
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop() {
@@ -80,8 +80,6 @@ void loop() {
   //     power[i] = 0;
   //   }
   // }
-
-
 
   for (int i = 0; i < 4; i++) {
     // scaled_power[i] = map(abs(abs(power[i])), 0, 512, 0, 255); // Scales magnitude of the joystick reading from max of 512 to max of 255
