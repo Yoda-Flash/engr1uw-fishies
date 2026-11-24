@@ -20,6 +20,12 @@ int BACKWARD[] = {11, 8, 13, 2};
 int power[4];
 int scaled_power[4];
 
+int BLASTER_INPUTS = {A4, A5}; // TODO: Update
+int BLASTER_PWM = {1, 2};
+int BLASTER_FORWARD = {1, 2};
+int BLASTER_BACKWARD = {1, 2};
+int BLASTER_POWER = 100;
+
 void setup() {
   // put your setup code here, to run once:
   NAMES[0] = "Top left";
@@ -32,9 +38,16 @@ void setup() {
   pinMode(LIFT_AXIS, INPUT);
 
   for (int i = 0; i < 4; i++) {
-    // pinMode(PWM[i], OUTPUT);
+    pinMode(PWM[i], OUTPUT);
     pinMode(FORWARD[i], OUTPUT);
     pinMode(BACKWARD[i], OUTPUT);
+  }
+
+  for (int i = 0; i < 2; i++) {
+    pinMode(BLASTER_INPUTS[i], INPUT);
+    pinMode(BLASTER_PWM[i], OUTPUT);
+    pinMode(BLASTER_FORWARD[i], OUTPUT);
+    pinMode(BLASTER_BACKWARD[i], OUTPUT);
   }
 
   Serial.begin(115200);
@@ -106,6 +119,18 @@ void loop() {
       digitalWrite(BACKWARD[i], LOW);
 
       Serial.println(", stationary");
+    }
+  }
+
+  for (int i = 0; i < 2; i++) {
+    if (digitalRead(BLASTER_INPUTS[i])) {
+      analogWrite(PWM[i], BLASTER_POWER);
+      digitalWrite(FORWARD[i], HIGH);
+      digitalWrite(BACKWARD[i], LOW);
+    } else {
+      analogWrite(PWM[i], 0);
+      digitalWrite(FORWARD[i], LOW);
+      digitalWrite(BACKWARD[i], LOW);
     }
   }
 }
