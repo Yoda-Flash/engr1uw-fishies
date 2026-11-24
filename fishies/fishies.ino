@@ -15,8 +15,8 @@ int lift = 0;
 // Top left, top right, back right, back left
 String NAMES[4];
 int PWM[] = {10, 5, 6, 3};
-int FORWARD[] = {42, 44, 33, 40};
-int BACKWARD[] = {43, 45, 49, 41};
+int FORWARD[] = {9, 7, 12, A3};
+int BACKWARD[] = {11, 8, 13, 2};
 int power[4];
 int scaled_power[4];
 
@@ -83,7 +83,7 @@ void loop() {
 
   for (int i = 0; i < 4; i++) {
     // scaled_power[i] = map(abs(abs(power[i])), 0, 512, 0, 255); // Scales magnitude of the joystick reading from max of 512 to max of 255
-    scaled_power[i] = SCALER*map(abs(power[i]), 0, 512, 0, 255);
+    scaled_power[i] = map(abs(power[i]), 0, 512, 0, 255); // SCALER*
     analogWrite(PWM[i], scaled_power[i]);
     Serial.print(NAMES[i]);
     Serial.print("'s raw power: ");
